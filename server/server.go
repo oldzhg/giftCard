@@ -2,6 +2,7 @@ package server
 
 import (
 	"giftCard/controller"
+	"giftCard/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,9 +10,11 @@ func Run() {
 
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
-	router.GET("/", func(c *gin.Context) {
-		c.Writer.WriteString("hello")
-	})
+	router.Use(middlewares.Cors())
+
+	//router.GET("/", func(c *gin.Context) {
+	//	c.Writer.WriteString("hello")
+	//})
 
 	router.GET("/api/v1/contacts", controller.AllContact)
 	router.POST("/api/v1/contact/create", controller.AddContact)
@@ -29,5 +32,8 @@ func Run() {
 
 	router.GET("/api/v1/sell", controller.SellCard)
 
-	router.Run(":8000")
+	err := router.Run(":8000")
+	if err != nil {
+		return
+	}
 }
