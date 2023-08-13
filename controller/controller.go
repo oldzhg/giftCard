@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"giftCard/model"
 	"giftCard/response"
 	"giftCard/utils"
@@ -8,13 +9,6 @@ import (
 	"math/rand"
 	"time"
 )
-
-var WhatsAppIdList = []string{
-	"6281212121212",
-	"6281313131313",
-	"6281414141414",
-	// Add more numbers here
-}
 
 func AllContact(ctx *gin.Context) {
 	var contacts []model.Contact
@@ -134,9 +128,41 @@ func UpdateCardById(ctx *gin.Context) {
 }
 
 func SellCard(ctx *gin.Context) {
+	WhatsAppIdList := make([]string, 0)
+	utils.Db.Model(&model.WhatsApp{}).Pluck("whatsapp_id", &WhatsAppIdList)
+	fmt.Println(WhatsAppIdList)
 	rand.Seed(time.Now().UnixNano()) // 设置随机数种子
 	randomIndex := rand.Intn(len(WhatsAppIdList))
 	response.Success(ctx, gin.H{
 		"whatsappId": WhatsAppIdList[randomIndex],
 	}, "success")
+}
+
+func AddWhatsAppId(ctx *gin.Context) {
+	var whatsappId model.WhatsApp
+	if err := ctx.ShouldBindJSON(&whatsappId); err != nil {
+		response.Fail(ctx, nil, err.Error())
+		return
+	}
+	utils.Db.Create(&whatsappId)
+	response.Success(ctx, nil, "success")
+}
+
+func DeleteWhatsAppId(ctx *gin.Context) {
+	whatsappId := ctx.Query("whatsapp_id")
+	var whatsapp model.WhatsApp
+	utils.Db.Where("id = ?", whatsappId).First(&whatsapp)
+	if whatsapp.ID == 0 {
+		response.Fail(ctx, nil, "no whatsappId")
+		return
+	} else {
+		utils.Db.Delete(&whatsapp)
+		response.Success(ctx, nil, "success")
+	}
+}
+
+func GetWhatsAppIdList(ctx *gin.Context) {
+	var whatsappIdList []model.WhatsApp
+	utils.Db.Find(&whatsappIdList)
+	response.Success(ctx, whatsappIdList, "success")
 }

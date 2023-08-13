@@ -32,6 +32,10 @@ func Run() {
 
 	router.GET("/api/v1/sell", controller.SellCard)
 
+	router.POST("/api/v1/whatsapp/add", controller.AddWhatsAppId)
+	router.GET("/api/v1/whatsapp/delete", controller.DeleteWhatsAppId)
+	router.GET("/api/v1/whatsapp/list", controller.GetWhatsAppIdList)
+
 	err := router.Run(":8000")
 	if err != nil {
 		return
